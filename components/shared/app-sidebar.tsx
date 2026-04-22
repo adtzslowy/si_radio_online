@@ -3,15 +3,26 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  LayoutDashboard,
-  Users,
-  Package,
-  CreditCard,
   BarChart3,
-  Radio,
+  CreditCard,
+  LayoutDashboard,
+  Package,
+  Users,
 } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+} from "@/components/ui/sidebar"
 
 const menus = [
   {
@@ -30,18 +41,13 @@ const menus = [
     icon: Package,
   },
   {
-    title: "Subscription",
-    href: "/dashboard/subscriptions",
-    icon: Radio,
-  },
-  {
     title: "Pembayaran",
     href: "/dashboard/payments",
     icon: CreditCard,
   },
   {
-    title: "Statistik Pendengar",
-    href: "/dashboard/listener-stats",
+    title: "Statistik",
+    href: "/dashboard/stats",
     icon: BarChart3,
   },
 ]
@@ -49,50 +55,66 @@ const menus = [
 export function AppSidebar() {
   const pathname = usePathname()
 
+  const isMenuActive = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname === "/dashboard"
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`)
+  }
+
   return (
-    <aside className="hidden w-64 border-r bg-white lg:block">
-      <div className="flex h-16 items-center border-b px-6">
-        <div>
+    <Sidebar collapsible="icon" variant="sidebar">
+      <SidebarHeader className="border-b px-4 py-4">
+        <Link href="/dashboard" className="block space-y-1">
           <h2 className="text-lg font-bold tracking-tight">SIMERA</h2>
           <p className="text-xs text-muted-foreground">
-            SaaS Manajemen Iklan dan Radio
+            Manajemen Iklan Radio
+          </p>
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent className="px-2 py-3">
+        <SidebarGroup>
+          <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
+
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menus.map((item) => {
+                const Icon = item.icon
+                const isActive = isMenuActive(item.href)
+
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                      className="gap-3 rounded-lg"
+                    >
+                      <Link href={item.href}>
+                        <Icon className="h-4 w-4 shrink-0" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="border-t px-4 py-4">
+        <div className="rounded-lg border bg-background/50 px-3 py-2">
+          <p className="text-sm font-medium">Admin Radio</p>
+          <p className="text-xs text-muted-foreground">
+            admin@radioads.com
           </p>
         </div>
-      </div>
+      </SidebarFooter>
 
-      <div className="space-y-2 p-4">
-        <p className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Menu Utama
-        </p>
-
-        <nav className="grid gap-1">
-          {menus.map((menu) => {
-            const Icon = menu.icon
-
-            const isActive =
-              menu.href === "/dashboard"
-                ? pathname === "/dashboard"
-                : pathname === menu.href ||
-                  pathname.startsWith(`${menu.href}/`)
-
-            return (
-              <Link
-                key={menu.href}
-                href={menu.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-slate-100",
-                  isActive
-                    ? "bg-slate-100 font-medium text-slate-900"
-                    : "text-slate-600"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{menu.title}</span>
-              </Link>
-            )
-          })}
-        </nav>
-      </div>
-    </aside>
+      <SidebarRail />
+    </Sidebar>
   )
 }
